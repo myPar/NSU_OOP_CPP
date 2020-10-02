@@ -2,6 +2,7 @@
 #include <fstream>
 #include <list>
 #include <map>
+#include "Statistics.h"
 using namespace std;
 
 class Reader
@@ -23,7 +24,7 @@ class Reader
 		// returns map<> of pairs <key, value>, where 
 		// key corresponds the count of words in the text and
 		// value corresponds the list of words with such count
-		map<int, list<string>>* parse_input_data(ifstream* input_file, StringParser str_parser);
+		DataState* parse_input_data(ifstream* input_file, StringParser str_parser);
 		// auxiliary method for map data printing
 		void print_map(map<int, list<string>>* map);
 	};
@@ -47,5 +48,5 @@ public:
 		void print_exception();
 	};
 	// main method of input file data parsing
-	map<int, list<string>> *parse_input_data(int argc, char** argv);
+	DataState *parse_input_data(int argc, char** argv);
 };

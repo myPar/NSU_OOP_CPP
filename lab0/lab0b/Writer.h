@@ -2,6 +2,7 @@
 #include <fstream>
 #include <map>
 #include <list>
+#include "Statistics.h"
 
 using namespace std;
 //
@@ -15,10 +16,10 @@ class Writer
 	//
 	class DataWriter {
 	public:
-		void write_data(ofstream *output, map<int, list<string>>* data_map);
+		void write_data(ofstream *output, DataState* state);
 	};
 public:
-	void write_output_data(char** argv, map<int, list<string>>* data_map);
+	void write_output_data(char** argv, DataState *state);
 
 	enum ExceptionType
 	{

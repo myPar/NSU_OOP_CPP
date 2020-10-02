@@ -4,28 +4,31 @@
 #include <iostream>
 #include "Reader.h"
 #include "Writer.h"
+#include "Statistics.h"
 
 int main(int argc, char** argv)
 {
     Reader reader;
-    map<int, list<string>>* output_map;
+    DataState* state;
     try {
-        output_map = reader.parse_input_data(argc, argv);
+        state = reader.parse_input_data(argc, argv);
     }
     catch (Reader::ReaderException exception) {
+        // no need to call a destructor for state obj
         exception.print_exception();
         return 1;
     }
 
     Writer writer;
     try {
-        writer.write_output_data(argv, output_map);
+        writer.write_output_data(argv, state);
     }
     catch (Writer::WriterException exception) {
+        state->~DataState();
         exception.print_exception();
         return 1;
     }
-
+    state->~DataState();
     return 0;
 }
 

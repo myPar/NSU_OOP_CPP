@@ -1,4 +1,5 @@
 #include "Reader.h" 
+#include "Statistics.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -20,6 +21,7 @@ ifstream *Reader::InputSetter::set_input(int argc, char** argv) {
 	ifstream *input_file = new ifstream(file_name);
 	
 	if (!(*input_file)) {
+		delete input_file;
 		throw ReaderException(type, "can't open the input file");
 	}
 	return input_file;
@@ -66,9 +68,10 @@ list<string>* Reader::StringParser::parse_string(string str) {
 	return word_list;
 }
 
-map<int, list<string>>* Reader::DataCollector::parse_input_data(ifstream *input_file, StringParser str_parser) {
+DataState* Reader::DataCollector::parse_input_data(ifstream *input_file, StringParser str_parser) {	
 	map<string, int> count_map;
 	map<int, list<string>> *output_map = new map<int, list<string>>();
+	int word_count = 0;
 
 	while (!input_file->eof()) {
 		string str;
@@ -76,31 +79,18 @@ map<int, list<string>>* Reader::DataCollector::parse_input_data(ifstream *input_
 		list<string> *word_list = str_parser.parse_string(str);
 
 		for (string item : *word_list) {
-			// if map consist key
-			if (count_map.find(item) != count_map.end()) {
-				// increment consisted word count
-				count_map[item]++;
-			}
-			// otherwise
-			else {
-				// insert new word in map
-				count_map.insert(pair<string, int>(item, 1));
-			}
+			++count_map[item];
 		}
+		word_count += word_list->size();
+		delete word_list;
 	}
 	for (map<string, int>::iterator it = count_map.begin(); it != count_map.end(); ++it) {
 		int word_count = it->second;
 		string word = it->first;
-		// if map consist key (the words count)
-		if (output_map->find(word_count) != output_map->end()) {
-			(*output_map)[it->second].push_back(word);
-		}
-		else {
-			output_map->insert(pair<int, list<string>>(word_count, list<string>()));
-			(*output_map)[word_count].push_back(word);
-		}
+		(*output_map)[word_count].push_back(word);
 	}
-	return output_map;
+	DataState* state = new DataState(word_count, output_map);
+	return state;
 }
 
 void Reader::DataCollector::print_map(map<int, list<string>>* output_map) {
@@ -118,18 +108,20 @@ void Reader::DataCollector::print_map(map<int, list<string>>* output_map) {
 	}
 }
 
-map<int, list<string>> *Reader::parse_input_data(int argc, char** argv) {
+DataState *Reader::parse_input_data(int argc, char** argv) {
 	// set input
 	InputSetter in_setter;
 	ifstream* in_file = in_setter.set_input(argc, argv);
 	// parsing input data
 	StringParser str_parser;
 	DataCollector data_collector;
-	map<int, list<string>>* output_map = data_collector.parse_input_data(in_file, str_parser);
-	// print output map data (for debugging only)
-	data_collector.print_map(output_map);
+	DataState *state = data_collector.parse_input_data(in_file, str_parser);
 
-	return output_map;
+	delete in_file;
+	// print output map data (for debugging only)
+	//data_collector.print_map(output_map);
+
+	return state;
 }
 
 // Reader exception constructor implementation
