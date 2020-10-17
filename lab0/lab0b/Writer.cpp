@@ -21,9 +21,9 @@ ofstream* Writer::OutputSetter::set_output(char** argv) {
 	return output_file;
 }
 
-void Writer::DataWriter::write_data(ofstream* output, DataState *state) {
-	map<int, list<string>>* data_map = state->get_map();
-
+void Writer::DataWriter::write_data(ofstream* output, const DataState *state) {
+	const map<int, list<string>>* data_map = state->get_map();
+	
 	if (data_map->empty()) {
 		delete output;
 		Writer::ExceptionType type = Writer::ExceptionType::DataWriterException;
@@ -32,7 +32,7 @@ void Writer::DataWriter::write_data(ofstream* output, DataState *state) {
 	int words_count = state->get_count();
 	*output << "word,count,frequency" << endl;
 
-	for (map<int, list<string>>::iterator it = --data_map->end(); it != --data_map->begin(); --it) {
+	for (map<int, list<string>>::const_iterator it = --data_map->end(); it != --data_map->begin(); --it) {
 		int count = it->first;
 		double frequency = count / (double)words_count * 100;
 		list<string> word_list = it->second;
@@ -43,7 +43,7 @@ void Writer::DataWriter::write_data(ofstream* output, DataState *state) {
 	}
 }
 
-void Writer::write_output_data(char** argv, DataState *state) {
+void Writer::write_output_data(char** argv, const DataState *state) {
 	OutputSetter output_setter;
 	ofstream* output = output_setter.set_output(argv);
 	DataWriter writer;

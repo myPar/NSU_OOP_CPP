@@ -24,11 +24,11 @@ int main(int argc, char** argv)
         writer.write_output_data(argv, state);
     }
     catch (Writer::WriterException exception) {
-        state->~DataState();
+        delete state;
         exception.print_exception();
         return 1;
     }
-    state->~DataState();
+    delete state;
     return 0;
 }
 

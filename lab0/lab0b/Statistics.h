@@ -6,11 +6,11 @@
 using namespace std;
 class DataState {
 private:
-	int word_count;
-	map<int, list<string>>* word_map;
+	const int word_count;
+	const map<int, list<string>> *word_map;
 public:
-	map<int, list<string>>* get_map();
-	int get_count();
+	const map<int, list<string>>* get_map() const;
+	int get_count() const;
 	DataState(int count, map<int, list<string>>* data_map);
 	~DataState();
 };

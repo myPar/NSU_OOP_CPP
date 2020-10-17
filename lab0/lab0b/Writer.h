@@ -16,10 +16,10 @@ class Writer
 	//
 	class DataWriter {
 	public:
-		void write_data(ofstream *output, DataState* state);
+		void write_data(ofstream *output, const DataState* state);
 	};
 public:
-	void write_output_data(char** argv, DataState *state);
+	void write_output_data(char** argv, const DataState *state);
 
 	enum ExceptionType
 	{
