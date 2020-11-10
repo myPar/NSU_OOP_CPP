@@ -38,7 +38,7 @@ TritSet::SetModify::SetModify(TritSet *ref, Position pos, size_t idx) : referenc
 
 	// destructor (TritSet)
 TritSet::~TritSet() {
-	delete int_set;
+	delete[] int_set;
 }
 	// get Trit value
 Trit TritSet::get_value(Position pos) const{

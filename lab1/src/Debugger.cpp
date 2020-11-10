@@ -1,11 +1,14 @@
 #include "Debugger.h"
+// Debugger methods implementation
+	// constructor
+Debugger::Debugger(map<const string, std::unique_ptr<TritSet>> *s_map, unordered_set<string> *c_set): set_map(s_map), command_set(c_set){}
 
-// constructor
-Debugger::Debugger(map<const string, std::unique_ptr<TritSet>> *s_map, size_t s_count): 
-	set_map(s_map), set_count(s_count), option(DebuggerMode){}
-
-// destructor
+	// destructor
 Debugger::~Debugger() {
-	// all Trit sets'll be deleted automatically by using unique_ptr
-	delete(set_map);
+	delete set_map;
+	delete command_set;
+}
+
+// CommandParser methods implementation
+Command Debugger::parse_command(string input_str) {
 }
