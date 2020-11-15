@@ -1,6 +1,7 @@
 #include "Trit.h"
 #include <string>
 #include <cassert>
+#include <iostream>
 
 // named constants
 enum { byte_size = 8, trit_size = 2, int32_size = sizeof(int32_t) * byte_size };

@@ -7,6 +7,8 @@
 #include <string>
 #include <iostream>
 #include <list>
+// consts:
+enum {max_size = 10, max_arg_number = 8};
 
 // class implements user input command
 class Command {
@@ -16,26 +18,29 @@ private:
 	// option
 	string option;
 	// args
-	list<string> arg_list;
+	string *args;
+	// arg number
+	size_t arg_number;
 public:
 	// get methods
 	string get_name();
 	string get_option();
 	string* get_args();
 	// constructor
-	Command(string name, string option, list<string> args);
+	Command(string name, string option, size_t arg_number, string *args);
 	// destructor
 	~Command();
 };
 
 class Debugger {
+	// Exception type enum
+	enum ExceptionType {
+		CommandParserException,
+		CommandExecutorException
+	};
+
 	// Exception class
 	class DebuggerException {
-		// Exception type enum
-		enum ExceptionType {
-			CommandParserException,
-			CommandExecutorException
-		};
 	private:
 		ExceptionType exception_type;
 		string exception_message;
@@ -48,10 +53,11 @@ private:
 	// map of TritSet pointers: key - tritSet unicue name, value - TritSet pointer
 	map<const string, std::unique_ptr<TritSet>> *set_map;
 	// string set of command names
-	const unordered_set<string> *command_set;
+	const unordered_set<string> command_set;
+	const unordered_set<string> option_set;
 public:
 	// constructor
-	Debugger(map<const string, std::unique_ptr<TritSet>> *s_map, unordered_set<string> *c_set);
+	Debugger(map<const string, std::unique_ptr<TritSet>> *s_map);
 	// destructor
 	~Debugger();
 // Debugger methods
