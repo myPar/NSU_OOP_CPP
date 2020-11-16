@@ -2,11 +2,15 @@
 //
 
 #include <iostream>
-#include "Trit.h"
+#include "Debugger.h"
 using namespace std;
 
-int main()
+int main(int argc, char** argv)
 {
+	Debugger *debugger = new Debugger();
+	debugger->parse_user_input();
+
+	return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

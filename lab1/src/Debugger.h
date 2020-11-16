@@ -28,6 +28,8 @@ public:
 	string* get_args();
 	// constructor
 	Command(string name, string option, size_t arg_number, string *args);
+	// default constructor
+	Command();
 	// destructor
 	~Command();
 };
@@ -55,9 +57,11 @@ private:
 	// string set of command names
 	const unordered_set<string> command_set;
 	const unordered_set<string> option_set;
+
+	string* split(string *input_str, size_t* size);
 public:
 	// constructor
-	Debugger(map<const string, std::unique_ptr<TritSet>> *s_map);
+	Debugger();
 	// destructor
 	~Debugger();
 // Debugger methods
@@ -65,7 +69,7 @@ public:
 	void parse_user_input();
 
 	// parse input user string and returns Command object
-	Command parse_command(string input_string);
+	Command parse_command(string *input_string);
 
 	// execute parsed command
 	void execute_command(Command command);

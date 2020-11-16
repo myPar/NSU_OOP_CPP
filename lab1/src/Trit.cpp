@@ -12,7 +12,7 @@ TritSet::TritSet(size_t size) {
 	size_t bit_number = size * trit_size;
 
 	capacity = bit_number / int32_size;
-	last_idx = -1;
+	last_idx = 0;
 
 	if (bit_number % int32_size != 0) {
 		// add one int block if bit number doesn't devide on int32 size
@@ -23,7 +23,7 @@ TritSet::TritSet(size_t size) {
 	// initialize int set
 	int_set = new int32_t[capacity];
 
-	for (int i = 0; i < capacity; i++) {
+	for (size_t i = 0; i < capacity; i++) {
 		// null bits in block
 		int_set[i] = 0;
 	}
@@ -47,7 +47,7 @@ Trit TritSet::get_value(Position pos) const{
 	size_t bit_pos = pos.bit_pos;
 
 	int bit1 = ((block & (1 << bit_pos)) != 0);
-	int bit2 = ((block & (1 << ++bit_pos)) != 0);
+	int bit2 = ((block & (1 << (++bit_pos))) != 0);
 	
 	if (bit1 == 0 && bit2 == 0) {
 		return Unknown;
@@ -70,13 +70,15 @@ void TritSet::set_value(Position pos, Trit trit) {
 		int_set[pos.block_idx] |= (1 << pos.bit_pos);
 		break;
 	case Unknown:
+	{
 		int32_t mask = 0;
 		mask |= (1 << pos.bit_pos);
-		mask |= (1 << pos.bit_pos + 1);
+		mask |= (1 << (pos.bit_pos + 1));
 		mask = ~mask;
 		// null trit in bit_pos position
 		int_set[pos.block_idx] &= mask;
 		break;
+	}
 	default:
 		assert(0 && "invalid Trit type");
 	}
@@ -111,7 +113,7 @@ void TritSet::set_memory_realloc(size_t en_idx) {
 	if (en_idx == last_idx == -1) {
 		capacity = 0;
 		bound_idx = -1;
-		delete(int_set);
+		delete[] int_set;
 	}
 	Position new_pos = get_position(en_idx);
 	Position pos = get_position(last_idx);
@@ -119,13 +121,13 @@ void TritSet::set_memory_realloc(size_t en_idx) {
 	int32_t* new_trit_set = new int32_t[new_pos.block_idx + 1];
 	
 	// copy data
-	for (int i = 0; i <= pos.block_idx; i++) {
+	for (size_t i = 0; i <= pos.block_idx; i++) {
 		new_trit_set[i] = int_set[i];
 	}
 	// delete old trit set
-	delete(int_set);
+	delete[] int_set;
 	// set to remaining trits default (Unknown) value
-	for (int i = pos.block_idx + 1; i <= new_pos.block_idx; i++) {
+	for (size_t i = pos.block_idx + 1; i <= new_pos.block_idx; i++) {
 		new_trit_set[i] = 0;
 	}
 	// update trit set fields
