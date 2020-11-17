@@ -52,19 +52,21 @@ Trit TritSet::get_value(Position pos) const{
 	if (bit1 == 0 && bit2 == 0) {
 		return Unknown;
 	}
-	if (bit1 == 0 && bit2 == 1) {
+	else if (bit1 == 0 && bit2 == 1) {
 		return True;
 	}
-	if (bit1 == 1 && bit2 == 0) {
+	else if (bit1 == 1 && bit2 == 0) {
 		return False;
 	}
-	assert(0 && "invalid Trit value\n");
+	else {
+		assert(0 && "invalid Trit value\n");
+	}
 }
 	// set Trit value
 void TritSet::set_value(Position pos, Trit trit) {
 	switch (trit) {
 	case True: 
-		int_set[pos.block_idx] |= (1 << pos.bit_pos + 1);
+		int_set[pos.block_idx] |= (1 << (pos.bit_pos + 1));
 		break;
 	case False:
 		int_set[pos.block_idx] |= (1 << pos.bit_pos);
@@ -108,32 +110,42 @@ TritSet::Position TritSet::get_position(size_t trit_idx) const {
 }
 	// trit set memory reallocation
 void TritSet::set_memory_realloc(size_t en_idx) {
-	assert(en_idx >= last_idx && "invalid end idx range");
-	
-	if (en_idx == last_idx == -1) {
-		capacity = 0;
-		bound_idx = -1;
-		delete[] int_set;
-	}
 	Position new_pos = get_position(en_idx);
 	Position pos = get_position(last_idx);
-	// realloc memory for trit set
-	int32_t* new_trit_set = new int32_t[new_pos.block_idx + 1];
+	// set default value for new int set
+	int32_t* new_int_set = int_set;
 	
-	// copy data
-	for (size_t i = 0; i <= pos.block_idx; i++) {
-		new_trit_set[i] = int_set[i];
+	// allocation/free memory case
+	if (new_pos.block_idx != pos.block_idx) {
+		size_t data_bound_idx = en_idx > last_idx ? pos.block_idx : new_pos.block_idx;
+		new_int_set = new int32_t[new_pos.block_idx + 1];
+
+		// copy data
+		for (size_t i = 0; i <= pos.block_idx; i++) {
+			new_int_set[i] = int_set[i];
+		}
+		// delete old trit set
+		delete[] int_set;
+		// set to remaining trits default (Unknown) value
+		for (size_t i = pos.block_idx + 1; i <= new_pos.block_idx; i++) {
+			new_int_set[i] = 0;
+		}
 	}
-	// delete old trit set
-	delete[] int_set;
-	// set to remaining trits default (Unknown) value
-	for (size_t i = pos.block_idx + 1; i <= new_pos.block_idx; i++) {
-		new_trit_set[i] = 0;
-	}
+	// null the remaining bits in the bound block
+	null_bits(new_pos.bit_pos, &new_int_set[new_pos.block_idx]);
 	// update trit set fields
-	int_set = new_trit_set;
+	int_set = new_int_set;
 	capacity = new_pos.block_idx + 1;
 	bound_idx = capacity * int32_size / trit_size - 1;
+}
+	// null bits method implementation
+void TritSet::null_bits(size_t start_idx, int32_t* block_ref) {
+	int32_t mask = 0;
+
+	for (size_t i = 0; i <= start_idx; i++) {
+		mask |= (1 << i);
+	}
+	(*block_ref) &= mask;
 }
 // overloaded operators
 	// operator [] for comparing

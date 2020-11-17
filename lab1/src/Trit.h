@@ -47,6 +47,8 @@ private:
 	Position get_position(size_t trit_idx) const;
 	// reallocation memory for trit set
 	void set_memory_realloc(size_t en_idx);
+	// null bits in int block from start idx to end
+	void null_bits(size_t start_idx, int32_t *block_ref);
 public:
 //public methods:
 	// constructor

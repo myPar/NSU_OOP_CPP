@@ -37,6 +37,24 @@ Command::~Command() {
 	cout << "Command destructor executed" << endl;
 }
 
+	// print data method
+void Command::print_command() {
+	cout << "name: " << name << endl;
+	cout << "option: ";
+
+	if (option == "") {
+		cout << "no option" << endl;
+	}
+	else {
+		cout << option << endl;
+	}
+	cout << arg_number << " args: ";
+
+	for (size_t i = 0; i < arg_number; i++) {
+		cout << args[i] << " ";
+	}
+	cout << endl;
+}
 // Debugger methods implementation
 	// constructor
 Debugger::Debugger() : command_set({ "mkset", "initset", "prtset" }), option_set({"-b"}) {
@@ -65,11 +83,12 @@ string* Debugger::split(string *input_str, size_t* size) {
 			st_idx = i;
 			length = 1;
 			parsing = true;
+			continue;
 		}
-		else if (parsing && ch != ' ') {
+		if (parsing && ch != ' ') {
 			length++;
 		}
-		else if (parsing && ch == ' ') {
+		if (parsing && (ch == ' ' || i == str_len - 1)) {
 			// take a substring (word)
 			if (arr_idx >= max_size) {
 				throw DebuggerException(CommandParserException, "too large input string");
@@ -105,6 +124,7 @@ Command Debugger::parse_command(string *input_str) {
 		if (i == 0) {
 			if (command_set.find(word) == command_set.end()) {
 				delete[] args;
+				delete[] word_arr;
 				throw DebuggerException(CommandParserException, "Incorrect command name");
 			}
 			name = word;
@@ -113,6 +133,7 @@ Command Debugger::parse_command(string *input_str) {
 			// check option
 			if (option_set.find(word) == option_set.end()) {
 				delete[] args;
+				delete[] word_arr;
 				throw DebuggerException(CommandParserException, "Incorrect command option");
 			}
 			opt = word;
@@ -131,18 +152,20 @@ void Debugger::parse_user_input() {
 	while (true) {
 		string* input_string = new string();
 		getline(cin, *input_string);
-		delete input_string;
 
 		unique_ptr<Command> command_ptr(new Command());
 
 		try {
 			*command_ptr = parse_command(input_string);
+			delete input_string;
 		}
 		catch (DebuggerException exception) {
+			delete input_string;
 			exception.print_exception();
 			continue;
 		}
-
+		cout << "interpreted command:\n";
+		(*command_ptr).print_command();
 		try {
 			// command executor calling
 		}

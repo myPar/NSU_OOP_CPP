@@ -32,6 +32,8 @@ public:
 	Command();
 	// destructor
 	~Command();
+	// print Command data method
+	void print_command();
 };
 
 class Debugger {
