@@ -11,33 +11,33 @@ Debugger::DebuggerException::DebuggerException(ExceptionType type, string messag
 	exception_message = message;
 }
 
-	// print exception method
+// print exception method
 void Debugger::DebuggerException::print_exception() {
 	cout << "exception of type: " << exception_type << " " << exception_message << endl;
 }
 
 // Command methods implementation
 	//constructor
-Command::Command(string name, string option, size_t arg_number, string *args) {
+Command::Command(string name, string option, size_t arg_number, string* args) {
 	Command::name = name;
 	Command::option = option;
 	Command::args = args;
 	Command::arg_number = arg_number;
 }
-	// default constructor
+// default constructor
 Command::Command() {
 	Command::name = "";
 	Command::option = "";
 	Command::args = nullptr;
 	Command::arg_number = 0;
 }
-	//destructor
+//destructor
 Command::~Command() {
 	delete[] args;
 	cout << "Command destructor executed" << endl;
 }
 
-	// print data method
+// print data method
 void Command::print_command() {
 	cout << "name: " << name << endl;
 	cout << "option: ";
@@ -57,23 +57,23 @@ void Command::print_command() {
 }
 // Debugger methods implementation
 	// constructor
-Debugger::Debugger() : command_set({ "mkset", "initset", "prtset" }), option_set({"-b"}) {
+Debugger::Debugger() : command_set({ "mkset", "initset", "prtset" }), option_set({ "-b" }) {
 	set_map = new map<const string, std::unique_ptr<TritSet>>();
 }
 
-	// destructor
+// destructor
 Debugger::~Debugger() {
 	delete set_map;
 }
-	// split string by ' ' method
-string* Debugger::split(string *input_str, size_t* size) {
+// split string by ' ' method
+string* Debugger::split(string* input_str, size_t* size) {
 	size_t str_len = input_str->length();
 
 	bool parsing = false;
 	size_t st_idx = 0;
 	size_t length = 0;
 
-	string *word_arr = new string[max_size];
+	string* word_arr = new string[max_size];
 	size_t arr_idx = 0;
 
 	for (size_t i = 0; i < str_len; i++) {
@@ -104,14 +104,14 @@ string* Debugger::split(string *input_str, size_t* size) {
 	return word_arr;
 }
 
-	// Parse Command method implementation
-Command Debugger::parse_command(string *input_str) {
+// Parse Command method implementation
+Command Debugger::parse_command(string* input_str) {
 	// split input string by ' '
 	size_t arr_lengt = 0;
 	string* word_arr = split(input_str, &arr_lengt);
 
-// check word list before construct Command obj
-	// Command fields values
+	// check word list before construct Command obj
+		// Command fields values
 	string name = "";
 	string opt = "";
 	size_t arg_number = 0;
@@ -153,10 +153,10 @@ void Debugger::parse_user_input() {
 		string* input_string = new string();
 		getline(cin, *input_string);
 
-		unique_ptr<Command> command_ptr(new Command());
+		Command command;
 
 		try {
-			*command_ptr = parse_command(input_string);
+			command = parse_command(input_string);
 			delete input_string;
 		}
 		catch (DebuggerException exception) {
@@ -165,7 +165,7 @@ void Debugger::parse_user_input() {
 			continue;
 		}
 		cout << "interpreted command:\n";
-		(*command_ptr).print_command();
+		command.print_command();
 		try {
 			// command executor calling
 		}

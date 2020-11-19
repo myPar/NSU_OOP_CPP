@@ -2,14 +2,10 @@
 //
 
 #include <iostream>
-#include "Debugger.h"
 using namespace std;
 
 int main(int argc, char** argv)
 {
-	Debugger *debugger = new Debugger();
-	debugger->parse_user_input();
-
 	return 0;
 }
 

@@ -1,6 +1,11 @@
 #pragma once
 #include <cstdint>
+#include <unordered_map>
+
 using namespace std;
+
+// named constants
+enum { byte_size = 8, trit_size = 2, int32_size = sizeof(int32_t) * byte_size };
 
 //Trit enum
 enum Trit {
@@ -8,6 +13,10 @@ enum Trit {
 	True,
 	False,
 };
+// binary operations on Trits
+Trit AND(Trit trit1, Trit trit2);
+Trit OR(Trit trit1, Trit trit2);
+Trit NOT(Trit trit);
 
 class TritSet {
 	// class position (save viewing of int block value (S))
@@ -49,6 +58,10 @@ private:
 	void set_memory_realloc(size_t en_idx);
 	// null bits in int block from start idx to end
 	void null_bits(size_t start_idx, int32_t *block_ref);
+	// masks TritSet with mask using parameterized binary operation
+	TritSet masking(const TritSet mask, Trit(* const operation_ptr)(Trit, Trit)) const;
+	// inverts TritSet values using binary NOT
+	TritSet masking_NOT() const;
 public:
 //public methods:
 	// constructor
@@ -58,18 +71,21 @@ public:
 
 	//free memory to last not unknown trit
 	void shrink();
-	// set all trits from start idx to Unknown value
-	void clear_set(size_t start_idx);
-	// returns count of such trit value in the set
-	size_t get_trit_count(Trit trit);
-// get methods
-	// returns 'capacity' field value
-	size_t get_capacity();
-	// returns 'last_idx' field
-	size_t get_last_idx();
+	// returns last not Unknown trit index
+	size_t length();
+	// returns number of such such type trits
+	size_t cardinality(Trit trit);
+	// the as 'cardinality' method, but for all Trit types
+	unordered_map<Trit, size_t> cardinality();
 // overloaded operators
 	// access to trit by index (for comparing only)
 	Trit operator[] (size_t) const;
 	// access to trit by index (for initialising)
 	SetModify operator[] (size_t);
+	// overloaded AND
+	TritSet operator& (const TritSet);
+	// overloaded OR
+	TritSet operator| (const TritSet);
+	// overloaded NOT
+	TritSet operator!();
 };

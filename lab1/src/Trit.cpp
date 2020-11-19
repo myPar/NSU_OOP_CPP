@@ -2,11 +2,9 @@
 #include <string>
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 
-// named constants
-enum { byte_size = 8, trit_size = 2, int32_size = sizeof(int32_t) * byte_size };
-
-// methods declaration
+// constructors and destructors implementation:
 	// constructor (TritSet)
 TritSet::TritSet(size_t size) {
 	size_t bit_number = size * trit_size;
@@ -28,7 +26,6 @@ TritSet::TritSet(size_t size) {
 		int_set[i] = 0;
 	}
 }
-
 	// constructor (Position)
 TritSet::Position::Position(size_t b_idx, size_t b_pos) {
 	block_idx = b_idx;
@@ -41,6 +38,7 @@ TritSet::SetModify::SetModify(TritSet *ref, Position pos, size_t idx) : referenc
 TritSet::~TritSet() {
 	delete[] int_set;
 }
+// private methods:
 	// get Trit value
 Trit TritSet::get_value(Position pos) const{
 	int32_t block = int_set[pos.block_idx];
@@ -147,7 +145,31 @@ void TritSet::null_bits(size_t start_idx, int32_t* block_ref) {
 	}
 	(*block_ref) &= mask;
 }
-// overloaded operators
+	// masking function with parameterized binary operation
+TritSet TritSet::masking(const TritSet mask, Trit(* const operation_ptr)(Trit, Trit)) const {
+	size_t mask_boud_idx = mask.last_idx;
+	TritSet result(last_idx + 1);
+	// AND template Trits with mask Trits
+	for (size_t i = 0; i <= mask_boud_idx; i++) {
+		Position pos = get_position(i);
+
+		Trit mask_trit = mask.get_value(pos);
+		Trit temp_trit = get_value(pos);
+
+		result[i] = operation_ptr(mask_trit, temp_trit);
+	}
+	// AND remaining template Trits with UNKNOWN Trits
+	for (size_t i = mask_boud_idx; i <= last_idx; i++) {
+		Position pos = get_position(i);
+		Trit trit = get_value(pos);
+
+		result[i] = operation_ptr(trit, Unknown);
+	}
+
+	return result;
+}
+
+// overloaded operators:
 	// operator [] for comparing
 Trit TritSet::operator[] (size_t idx) const {
 	// check if we try to compare trits out of trit set bounds
@@ -188,4 +210,123 @@ void TritSet::SetModify::operator=(Trit trit) {
 	else {
 		assert(0 && "invalid index range");
 	}
+}
+	//operator AND
+TritSet TritSet::operator& (const TritSet set) {
+	// is left set bigger then rigth
+	bool is_max_set = last_idx >= set.last_idx ? true : false;
+	
+	if (is_max_set) {
+		return masking(set, AND);
+	}
+	else {
+		return set.masking(*this, AND);
+	}
+}
+	// operator OR	
+TritSet TritSet::operator| (const TritSet set) {
+	// is left set bigger then rigth
+	bool is_max_set = last_idx >= set.last_idx ? true : false;
+
+	if (is_max_set) {
+		return masking(set, OR);
+	}
+	else {
+		return set.masking(*this, OR);
+	}
+}
+	//operator NOT
+TritSet TritSet::operator!() {
+	TritSet result(last_idx + 1);
+
+	for (size_t i = 0; i < last_idx; i++) {
+		Position pos = get_position(i);
+		Trit trit = get_value(pos);
+
+		result[i] = NOT(trit);
+	}
+	return result;
+}
+// binary operations implementation:
+	// operation AND
+Trit AND(Trit trit1, Trit trit2) {
+	if (trit1 == False || trit2 == False) {
+		return False;
+	}
+	if (trit1 == Unknown || trit2 == Unknown) {
+		return Unknown;
+	}
+	return True;
+}
+	// operation OR
+Trit OR(Trit trit1, Trit trit2) {
+	if (trit1 == True || trit2 == True) {
+		return True;
+	}
+	if (trit1 == Unknown || trit2 == Unknown) {
+		return Unknown;
+	}
+	return False;
+}
+	// operation NOT
+Trit NOT(Trit trit) {
+	if (trit == True) {
+		return False;
+	}
+	if (trit == False) {
+		return True;
+	}
+	return Unknown;
+}
+// public functions:
+	// shrink() method implementation
+void TritSet::shrink() {
+	set_memory_realloc(last_idx);
+}
+	// length() method implementation
+size_t TritSet::length() {
+	size_t length = 0;
+
+	for (size_t i = 0; i <= last_idx; i++) {
+		Position pos = this->get_position(i);
+		Trit trit = this->get_value(pos);
+
+		if (trit != Unknown) {
+			length++;
+		}
+	}
+	return length;
+}
+	// cardinality() method implementation
+size_t TritSet::cardinality(Trit trit) {
+	size_t count = 0;
+
+	for (size_t i = 0; i <= last_idx; i++) {
+		Position pos = this->get_position(i);
+		Trit trit = this->get_value(pos);
+
+		if (trit == trit) {
+			count++;
+		}
+	}
+	return count;
+}
+	// cardinality() method for all Trit types implementation
+unordered_map<Trit, size_t> TritSet::cardinality() {
+	unordered_map<Trit, size_t> map;
+	pair<Trit, size_t> true_pair(True, 0);
+	pair<Trit, size_t> false_pair(False, 0);
+	pair<Trit, size_t> unknown_pair(Unknown, 0);
+
+	map.insert(true_pair);
+	map.insert(false_pair);
+	map.insert(unknown_pair);
+
+	for (size_t i = 0; i <= last_idx; i++) {
+		Position pos = this->get_position(i);
+		Trit trit = this->get_value(pos);
+
+		map[trit]++;
+	}
+	return map;
 }
