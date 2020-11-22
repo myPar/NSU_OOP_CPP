@@ -26,6 +26,15 @@ TritSet::TritSet(size_t size) {
 		int_set[i] = 0;
 	}
 }
+	// copy constructor(TritSet) (creates new int32_t array and copies data from src int32_t array)
+TritSet::TritSet(const TritSet& src) : capacity(src.capacity), bound_idx(src.bound_idx), last_idx(src.last_idx){
+	// make new int set
+	int_set = new int32_t[capacity];
+	// copying data
+	for (size_t i = 0; i < capacity; i++) {
+		int_set[i] = src.int_set[i];
+	}
+}
 	// constructor (Position)
 TritSet::Position::Position(size_t b_idx, size_t b_pos) {
 	block_idx = b_idx;
@@ -33,7 +42,8 @@ TritSet::Position::Position(size_t b_idx, size_t b_pos) {
 }
 	// constructor (BlockReference)
 TritSet::SetModify::SetModify(TritSet *ref, Position pos, size_t idx) : reference(ref), position(pos), init_idx(idx) {}
-
+	// constructor (TritSetException)
+TritSetException::TritSetException(string message): message(message) {}
 	// destructor (TritSet)
 TritSet::~TritSet() {
 	delete[] int_set;
@@ -62,6 +72,13 @@ Trit TritSet::get_value(Position pos) const{
 }
 	// set Trit value
 void TritSet::set_value(Position pos, Trit trit) {
+	// null trit in bit_pos position before initialization
+	int32_t mask = 0;
+	mask |= (1 << pos.bit_pos);
+	mask |= (1 << (pos.bit_pos + 1));
+	mask = ~mask;
+	int_set[pos.block_idx] &= mask;
+
 	switch (trit) {
 	case True: 
 		int_set[pos.block_idx] |= (1 << (pos.bit_pos + 1));
@@ -71,12 +88,6 @@ void TritSet::set_value(Position pos, Trit trit) {
 		break;
 	case Unknown:
 	{
-		int32_t mask = 0;
-		mask |= (1 << pos.bit_pos);
-		mask |= (1 << (pos.bit_pos + 1));
-		mask = ~mask;
-		// null trit in bit_pos position
-		int_set[pos.block_idx] &= mask;
 		break;
 	}
 	default:
@@ -114,7 +125,7 @@ void TritSet::set_memory_realloc(size_t en_idx) {
 	int32_t* new_int_set = int_set;
 	
 	// allocation/free memory case
-	if (new_pos.block_idx != pos.block_idx) {
+	if (new_pos.block_idx != capacity - 1) {
 		size_t data_bound_idx = en_idx > last_idx ? pos.block_idx : new_pos.block_idx;
 		new_int_set = new int32_t[new_pos.block_idx + 1];
 
@@ -166,14 +177,14 @@ TritSet TritSet::masking(const TritSet mask, Trit(* const operation_ptr)(Trit, T
 		result[i] = operation_ptr(trit, Unknown);
 	}
 
-	return result;
+	return TritSet(result);
 }
 
 // overloaded operators:
 	// operator [] for comparing
 Trit TritSet::operator[] (size_t idx) const {
 	// check if we try to compare trits out of trit set bounds
-	if (idx > last_idx) {
+	if (idx > last_idx || idx < 0) {
 		return Unknown;
 	}
 	Position trit_pos = get_position(idx);
@@ -205,6 +216,8 @@ void TritSet::SetModify::operator=(Trit trit) {
 		if (trit != Unknown) {
 			// reallocating memory for the trit set and copy existing data
 			reference->set_memory_realloc(init_idx);
+			reference->set_value(position, trit);
+			reference->last_idx = init_idx;
 		}
 	}
 	else {
@@ -239,7 +252,7 @@ TritSet TritSet::operator| (const TritSet set) {
 TritSet TritSet::operator!() {
 	TritSet result(last_idx + 1);
 
-	for (size_t i = 0; i < last_idx; i++) {
+	for (size_t i = 0; i <= last_idx; i++) {
 		Position pos = get_position(i);
 		Trit trit = get_value(pos);
 
@@ -297,15 +310,21 @@ size_t TritSet::length() {
 	}
 	return length;
 }
+	// trim() method implementation
+void TritSet::trim(size_t idx) {
+	for (size_t i = idx; i <= last_idx; i++) {
+		(*this)[i] = Unknown;
+	}
+}
 	// cardinality() method implementation
 size_t TritSet::cardinality(Trit trit) {
 	size_t count = 0;
 
 	for (size_t i = 0; i <= last_idx; i++) {
 		Position pos = this->get_position(i);
-		Trit trit = this->get_value(pos);
+		Trit cur_trit = this->get_value(pos);
 
-		if (trit == trit) {
+		if (cur_trit == trit) {
 			count++;
 		}
 	}
@@ -329,4 +348,40 @@ unordered_map<Trit, size_t> TritSet::cardinality() {
 		map[trit]++;
 	}
 	return map;
+}
+
+// print TritSet data methods:
+void TritSet::print_binary_data() {
+	for (size_t block_idx = 0; block_idx < capacity; block_idx++) {
+		for (size_t bit_pos = 0; bit_pos < int32_size; bit_pos++) {
+			int32_t block = int_set[block_idx];
+
+			if ((block & (1 << bit_pos)) != 0) {
+				cout << '1';
+			}
+			else {
+				cout << '0';
+			}
+			if (bit_pos % trit_size == trit_size - 1) {
+				cout << " ";
+			}
+		}
+		cout << "| ";
+	}
+	cout << endl;
+}
+
+void TritSet::print_data() {
+	cout << "fields:" << endl;
+	cout << "	capacity: " << capacity << endl;
+	cout << "	last_idx: " << last_idx << endl;
+	cout << "	bound_idx: " << bound_idx << endl;
+	cout << "data: " << endl;
+	print_binary_data();
+	cout << endl;
+}
+
+// print TritSetException method
+void TritSetException::print_exception() {
+	cout << message << endl;
 }

@@ -5,7 +5,16 @@
 using namespace std;
 
 // named constants
-enum { byte_size = 8, trit_size = 2, int32_size = sizeof(int32_t) * byte_size };
+enum { byte_size = 8, trit_size = 2, int32_size = sizeof(int32_t) * byte_size};
+
+//TritSet exception class
+class TritSetException {
+private:
+	string message;
+public:
+	TritSetException(string messaage);
+	void print_exception();
+};
 
 //Trit enum
 enum Trit {
@@ -46,8 +55,6 @@ private:
 	// index of last defined trit (Trit index, like: trit_set[idx])
 	size_t last_idx;
 
-	// run through all set and search last not Unknown trit
-	size_t length();
 	// gets trit value
     Trit get_value(Position position) const;
 	// sets trit value in the position of the trit set
@@ -66,6 +73,8 @@ public:
 //public methods:
 	// constructor
 	TritSet(size_t size);
+	// copy-constructor
+	TritSet(const TritSet&);
 	// destructor
 	~TritSet();
 
@@ -73,10 +82,16 @@ public:
 	void shrink();
 	// returns last not Unknown trit index
 	size_t length();
+	// forget data of all Trits which are started from idx position
+	void trim(size_t idx);
 	// returns number of such such type trits
 	size_t cardinality(Trit trit);
 	// the as 'cardinality' method, but for all Trit types
 	unordered_map<Trit, size_t> cardinality();
+	// print TritSet data mathod
+	void print_data();
+	// printing bits of the TritSet
+	void print_binary_data();
 // overloaded operators
 	// access to trit by index (for comparing only)
 	Trit operator[] (size_t) const;
