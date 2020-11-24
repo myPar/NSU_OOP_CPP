@@ -7,15 +7,6 @@ using namespace std;
 // named constants
 enum { byte_size = 8, trit_size = 2, int32_size = sizeof(int32_t) * byte_size};
 
-//TritSet exception class
-class TritSetException {
-private:
-	string message;
-public:
-	TritSetException(string messaage);
-	void print_exception();
-};
-
 //Trit enum
 enum Trit {
 	Unknown,
@@ -35,6 +26,7 @@ class TritSet {
 		size_t bit_pos;
 		Position(size_t bl_idx, size_t b_pos);
 	};
+	// class SetModify (store const ptr on TritSet to modify it)
 	class SetModify {
 	public:
 		// for set modification
@@ -54,7 +46,6 @@ private:
 	size_t bound_idx;
 	// index of last defined trit (Trit index, like: trit_set[idx])
 	size_t last_idx;
-
 	// gets trit value
     Trit get_value(Position position) const;
 	// sets trit value in the position of the trit set
@@ -77,8 +68,12 @@ public:
 	TritSet(const TritSet&);
 	// destructor
 	~TritSet();
+	// fields getters methods (for Testing only)
+	size_t get_capacity() const;
+	size_t get_bound_idx() const;
+	size_t get_last_idx() const;
 
-	//free memory to last not unknown trit
+	//free memory to last installed trit
 	void shrink();
 	// returns last not Unknown trit index
 	size_t length();

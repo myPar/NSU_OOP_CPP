@@ -42,8 +42,7 @@ TritSet::Position::Position(size_t b_idx, size_t b_pos) {
 }
 	// constructor (BlockReference)
 TritSet::SetModify::SetModify(TritSet *ref, Position pos, size_t idx) : reference(ref), position(pos), init_idx(idx) {}
-	// constructor (TritSetException)
-TritSetException::TritSetException(string message): message(message) {}
+
 	// destructor (TritSet)
 TritSet::~TritSet() {
 	delete[] int_set;
@@ -381,7 +380,7 @@ void TritSet::print_data() {
 	cout << endl;
 }
 
-// print TritSetException method
-void TritSetException::print_exception() {
-	cout << message << endl;
-}
+// fields getters methods:
+size_t TritSet::get_capacity()  const { return capacity; }
+size_t TritSet::get_bound_idx() const { return bound_idx; }
+size_t TritSet::get_last_idx() const { return last_idx; }
