@@ -5,7 +5,7 @@
 using namespace std;
 
 // named constants
-enum { byte_size = 8, trit_size = 2, int32_size = sizeof(int32_t) * byte_size};
+enum { byte_size = 8, trit_size = 2, int32_size = sizeof(int32_t) * byte_size };
 
 //Trit enum
 enum Trit {
@@ -30,12 +30,13 @@ class TritSet {
 	class SetModify {
 	public:
 		// for set modification
-		TritSet *const reference;
+		TritSet* const reference;
 		Position position;
 		size_t init_idx;
 
-		SetModify(TritSet *ref, Position pos, size_t idx);
+		SetModify(TritSet* ref, Position pos, size_t idx);
 		void operator= (Trit);
+		bool operator==(Trit);
 	};
 private:
 	// integer set
@@ -46,8 +47,9 @@ private:
 	size_t bound_idx;
 	// index of last defined trit (Trit index, like: trit_set[idx])
 	size_t last_idx;
+
 	// gets trit value
-    Trit get_value(Position position) const;
+	Trit get_value(Position position) const;
 	// sets trit value in the position of the trit set
 	void set_value(Position pos, Trit trit);
 	// gets trit position by its index
@@ -55,14 +57,14 @@ private:
 	// reallocation memory for trit set
 	void set_memory_realloc(size_t en_idx);
 	// null bits in int block from start idx to end
-	void null_bits(size_t start_idx, int32_t *block_ref);
+	void null_bits(size_t start_idx, int32_t* block_ref);
 	// masks TritSet with mask using parameterized binary operation
 	TritSet masking(const TritSet mask, Trit(* const operation_ptr)(Trit, Trit)) const;
 	// inverts TritSet values using binary NOT
 	TritSet masking_NOT() const;
 public:
-//public methods:
-	// constructor
+	//public methods:
+		// constructor
 	TritSet(size_t size);
 	// copy-constructor
 	TritSet(const TritSet&);
@@ -87,10 +89,10 @@ public:
 	void print_data();
 	// printing bits of the TritSet
 	void print_binary_data();
-// overloaded operators
-	// access to trit by index (for comparing only)
-	Trit operator[] (size_t) const;
-	// access to trit by index (for initialising)
+
+	// overloaded operators:
+
+	// access to trit by index (for initialising and getting data)
 	SetModify operator[] (size_t);
 	// overloaded AND
 	TritSet operator& (const TritSet);

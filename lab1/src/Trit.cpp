@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Trit.h"
 #include <string>
 #include <cassert>
@@ -7,6 +8,7 @@
 // constructors and destructors implementation:
 	// constructor (TritSet)
 TritSet::TritSet(size_t size) {
+	assert(size > 0 && "trit set size must be greater then zero");
 	size_t bit_number = size * trit_size;
 
 	capacity = bit_number / int32_size;
@@ -26,8 +28,8 @@ TritSet::TritSet(size_t size) {
 		int_set[i] = 0;
 	}
 }
-	// copy constructor(TritSet) (creates new int32_t array and copies data from src int32_t array)
-TritSet::TritSet(const TritSet& src) : capacity(src.capacity), bound_idx(src.bound_idx), last_idx(src.last_idx){
+// copy constructor(TritSet) (creates new int32_t array and copies data from src int32_t array)
+TritSet::TritSet(const TritSet& src) : capacity(src.capacity), bound_idx(src.bound_idx), last_idx(src.last_idx) {
 	// make new int set
 	int_set = new int32_t[capacity];
 	// copying data
@@ -35,27 +37,27 @@ TritSet::TritSet(const TritSet& src) : capacity(src.capacity), bound_idx(src.bou
 		int_set[i] = src.int_set[i];
 	}
 }
-	// constructor (Position)
+// constructor (Position)
 TritSet::Position::Position(size_t b_idx, size_t b_pos) {
 	block_idx = b_idx;
 	bit_pos = b_pos;
 }
-	// constructor (BlockReference)
-TritSet::SetModify::SetModify(TritSet *ref, Position pos, size_t idx) : reference(ref), position(pos), init_idx(idx) {}
+// constructor (BlockReference)
+TritSet::SetModify::SetModify(TritSet* ref, Position pos, size_t idx) : reference(ref), position(pos), init_idx(idx) {}
 
-	// destructor (TritSet)
+// destructor (TritSet)
 TritSet::~TritSet() {
 	delete[] int_set;
 }
 // private methods:
 	// get Trit value
-Trit TritSet::get_value(Position pos) const{
+Trit TritSet::get_value(Position pos) const {
 	int32_t block = int_set[pos.block_idx];
 	size_t bit_pos = pos.bit_pos;
 
 	int bit1 = ((block & (1 << bit_pos)) != 0);
 	int bit2 = ((block & (1 << (++bit_pos))) != 0);
-	
+
 	if (bit1 == 0 && bit2 == 0) {
 		return Unknown;
 	}
@@ -69,7 +71,7 @@ Trit TritSet::get_value(Position pos) const{
 		assert(0 && "invalid Trit value\n");
 	}
 }
-	// set Trit value
+// set Trit value
 void TritSet::set_value(Position pos, Trit trit) {
 	// null trit in bit_pos position before initialization
 	int32_t mask = 0;
@@ -79,7 +81,7 @@ void TritSet::set_value(Position pos, Trit trit) {
 	int_set[pos.block_idx] &= mask;
 
 	switch (trit) {
-	case True: 
+	case True:
 		int_set[pos.block_idx] |= (1 << (pos.bit_pos + 1));
 		break;
 	case False:
@@ -93,7 +95,7 @@ void TritSet::set_value(Position pos, Trit trit) {
 		assert(0 && "invalid Trit type");
 	}
 }
-	// get Trit position by its index
+// get Trit position by its index
 TritSet::Position TritSet::get_position(size_t trit_idx) const {
 	size_t bit_number = (trit_idx + 1) * trit_size;
 	size_t block_idx;
@@ -116,13 +118,13 @@ TritSet::Position TritSet::get_position(size_t trit_idx) const {
 
 	return trit_pos;
 }
-	// trit set memory reallocation
+// trit set memory reallocation
 void TritSet::set_memory_realloc(size_t en_idx) {
 	Position new_pos = get_position(en_idx);
 	Position pos = get_position(last_idx);
 	// set default value for new int set
 	int32_t* new_int_set = int_set;
-	
+
 	// allocation/free memory case
 	if (new_pos.block_idx != capacity - 1) {
 		size_t data_bound_idx = en_idx > last_idx ? pos.block_idx : new_pos.block_idx;
@@ -146,7 +148,7 @@ void TritSet::set_memory_realloc(size_t en_idx) {
 	capacity = new_pos.block_idx + 1;
 	bound_idx = capacity * int32_size / trit_size - 1;
 }
-	// null bits method implementation
+// null bits method implementation
 void TritSet::null_bits(size_t start_idx, int32_t* block_ref) {
 	int32_t mask = 0;
 
@@ -155,7 +157,7 @@ void TritSet::null_bits(size_t start_idx, int32_t* block_ref) {
 	}
 	(*block_ref) &= mask;
 }
-	// masking function with parameterized binary operation
+// masking function with parameterized binary operation
 TritSet TritSet::masking(const TritSet mask, Trit(* const operation_ptr)(Trit, Trit)) const {
 	size_t mask_boud_idx = mask.last_idx;
 	TritSet result(last_idx + 1);
@@ -169,7 +171,7 @@ TritSet TritSet::masking(const TritSet mask, Trit(* const operation_ptr)(Trit, T
 		result[i] = operation_ptr(mask_trit, temp_trit);
 	}
 	// AND remaining template Trits with UNKNOWN Trits
-	for (size_t i = mask_boud_idx; i <= last_idx; i++) {
+	for (size_t i = mask_boud_idx + 1; i <= last_idx; i++) {
 		Position pos = get_position(i);
 		Trit trit = get_value(pos);
 
@@ -180,17 +182,7 @@ TritSet TritSet::masking(const TritSet mask, Trit(* const operation_ptr)(Trit, T
 }
 
 // overloaded operators:
-	// operator [] for comparing
-Trit TritSet::operator[] (size_t idx) const {
-	// check if we try to compare trits out of trit set bounds
-	if (idx > last_idx || idx < 0) {
-		return Unknown;
-	}
-	Position trit_pos = get_position(idx);
-
-	return get_value(trit_pos);
-}
-	// operator [] for modification
+// operator [] for modification and comparing data
 TritSet::SetModify TritSet::operator[] (size_t idx) {
 	Position trit_pos = get_position(idx);
 	// give itself trit set ptr as SetModify constructor parameter
@@ -198,7 +190,7 @@ TritSet::SetModify TritSet::operator[] (size_t idx) {
 
 	return ref;
 }
-	// operator = for Trit initializing
+// operator = for Trit initializing
 void TritSet::SetModify::operator=(Trit trit) {
 	// initializing inside trit set
 	if (init_idx <= reference->last_idx) {
@@ -223,11 +215,20 @@ void TritSet::SetModify::operator=(Trit trit) {
 		assert(0 && "invalid index range");
 	}
 }
-	//operator AND
+// operator == for Trit comparing
+bool TritSet::SetModify::operator==(Trit value) {
+	Trit trit = Unknown;
+
+	if (init_idx <= reference->last_idx) {
+		trit = reference->get_value(position);
+	}
+	return trit == value;
+}
+//operator AND
 TritSet TritSet::operator& (const TritSet set) {
 	// is left set bigger then rigth
 	bool is_max_set = last_idx >= set.last_idx ? true : false;
-	
+
 	if (is_max_set) {
 		return masking(set, AND);
 	}
@@ -235,7 +236,7 @@ TritSet TritSet::operator& (const TritSet set) {
 		return set.masking(*this, AND);
 	}
 }
-	// operator OR	
+// operator OR	
 TritSet TritSet::operator| (const TritSet set) {
 	// is left set bigger then rigth
 	bool is_max_set = last_idx >= set.last_idx ? true : false;
@@ -247,7 +248,7 @@ TritSet TritSet::operator| (const TritSet set) {
 		return set.masking(*this, OR);
 	}
 }
-	//operator NOT
+//operator NOT
 TritSet TritSet::operator!() {
 	TritSet result(last_idx + 1);
 
@@ -270,7 +271,7 @@ Trit AND(Trit trit1, Trit trit2) {
 	}
 	return True;
 }
-	// operation OR
+// operation OR
 Trit OR(Trit trit1, Trit trit2) {
 	if (trit1 == True || trit2 == True) {
 		return True;
@@ -280,7 +281,7 @@ Trit OR(Trit trit1, Trit trit2) {
 	}
 	return False;
 }
-	// operation NOT
+// operation NOT
 Trit NOT(Trit trit) {
 	if (trit == True) {
 		return False;
@@ -295,27 +296,27 @@ Trit NOT(Trit trit) {
 void TritSet::shrink() {
 	set_memory_realloc(last_idx);
 }
-	// length() method implementation
+// length() method implementation
 size_t TritSet::length() {
-	size_t length = 0;
+	size_t length = -1;			// UNSIGNED_MAX_VALUE = 0 - 1
 
 	for (size_t i = 0; i <= last_idx; i++) {
 		Position pos = this->get_position(i);
 		Trit trit = this->get_value(pos);
 
 		if (trit != Unknown) {
-			length++;
+			length = i;
 		}
 	}
-	return length;
+	return ++length;
 }
-	// trim() method implementation
+// trim() method implementation
 void TritSet::trim(size_t idx) {
 	for (size_t i = idx; i <= last_idx; i++) {
 		(*this)[i] = Unknown;
 	}
 }
-	// cardinality() method implementation
+// cardinality() method implementation
 size_t TritSet::cardinality(Trit trit) {
 	size_t count = 0;
 
@@ -329,7 +330,7 @@ size_t TritSet::cardinality(Trit trit) {
 	}
 	return count;
 }
-	// cardinality() method for all Trit types implementation
+// cardinality() method for all Trit types implementation
 unordered_map<Trit, size_t> TritSet::cardinality() {
 	unordered_map<Trit, size_t> map;
 	pair<Trit, size_t> true_pair(True, 0);
