@@ -16,10 +16,21 @@ private:
 	list<int> *const execute_pipe;
 public:
 	// field get'ers:
-	unordered_map<int, Node>* const get_map();
-	list<int>* const get_pipe();
+	const unordered_map<int, Node>* const get_map();
+	const list<int>* const get_pipe();
 	// Constructor & Destructor:
-	Data();
+	Data(unordered_map<int, Node> *map, list<int> *pipe);
 	~Data();
+};
+
+// class presents text data
+class Text {
+private:
+	// modifieble text data
+	list<string> *data;
+public:
+	list<string>* data();
+	Text();
+	~Text();
 };
 

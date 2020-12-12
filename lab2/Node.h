@@ -9,12 +9,12 @@ private:
 	// number of arguments
 	int arg_number;
 	// argument's array
-	string* args;
+	string* const args;
 public:
 	// vield geter's mthods
-	string name();
-	int arg_number();
-	string* args();
+	const string name();
+	const int arg_number();
+	const string* const args();
 	// Constructor
 	Node();
 	// copy-Constructor

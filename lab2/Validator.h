@@ -12,5 +12,7 @@ public:
 	// main Validator function 
 	virtual const Data& check_workflow(const Data& data) = 0;
 	// function-factory for implement class object creating
-	static Validator& factory_method();
+	static Validator *factory_method();
+	// virtual destructor
+	virtual ~Validator() = 0;
 };

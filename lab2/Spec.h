@@ -6,7 +6,7 @@ using namespace std;
 namespace WorkflowSpec {
 	enum {block_number = 6};
 	// workflow block names
-	static string BlockNames[block_number] = {"readfile", "writefile", "grep", "sort", "replace", "dump"};
+	static const string BlockNames[block_number] = {"readfile", "writefile", "grep", "sort", "replace", "dump"};
 	
 	// check block name correctness
 	bool check_name(string name);

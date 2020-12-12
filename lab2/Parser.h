@@ -17,5 +17,7 @@ public:
 	// main parse function
 	virtual const Data &parse_workflow(string input_file_name) = 0;
 	// function-factory for implement class object creating
-	static Parser &factory_method();
+	static Parser *factory_method();
+	// virtual destructor
+	virtual ~Parser() = 0;
 };
