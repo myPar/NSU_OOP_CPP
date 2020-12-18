@@ -1,10 +1,6 @@
 #include "WorkflowValidator.h"
-
-// constructor implementation
-WorkflowValidator::WorkflowValidator() {}
-
-// virtual destructor implementation
-Validator::~Validator() {}
+// Delete-method implementation
+void WorkflowValidator::Delete() { delete this; }
 
 // factory method implementatation
 Validator* Validator::factory_method() {
@@ -12,14 +8,14 @@ Validator* Validator::factory_method() {
 }
 
 // check workflow blocks on simantic correctness
-void WorkflowValidator::check_workflow_blocks(const unordered_map<int, Node>& block_map) {
+void WorkflowValidator::check_workflow_blocks(const unordered_map<int, Node> *block_map) {
 
 }
 // check workflow pipeline on simantic correctness
-void WorkflowValidator::check_workflow_pipe(const list<int>& pipe) {
+void WorkflowValidator::check_workflow_pipe(const list<int> *pipe) {
 
 }
 // main method implementation
-const Data& WorkflowValidator::check_workflow(const Data& data) {
-
+const Data *WorkflowValidator::check_workflow(const Data *data) {
+	return data;
 }

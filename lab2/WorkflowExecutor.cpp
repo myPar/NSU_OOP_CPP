@@ -1,10 +1,6 @@
 #include "WorkflowExecutor.h"
 
-// constructor implementation
-WorkflowExecutor::WorkflowExecutor() {}
-
-// destructor implementation
-Executor::~Executor() {}
+void WorkflowExecutor::Delete() {delete this;}
 
 // factory-method implementation
 Executor* Executor::factory_method() {
@@ -12,6 +8,6 @@ Executor* Executor::factory_method() {
 }
 
 // main method
-void WorkflowExecutor::execute(const Data& data) {
+void WorkflowExecutor::execute(const Data *data) {
 
 }

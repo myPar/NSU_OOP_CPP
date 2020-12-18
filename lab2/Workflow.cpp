@@ -1,6 +1,8 @@
 #include <iostream>
+#include "Runner.h"
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    Runner runner;
+    runner.run("");
 }
