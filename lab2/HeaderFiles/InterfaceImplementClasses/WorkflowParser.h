@@ -1,7 +1,8 @@
 #pragma once
-#include "Parser.h"
 #include <string>
 #include <iostream>
+#include <memory>
+#include "Parser.h"
 
 enum {max_arg_number = 10};
 
@@ -10,7 +11,7 @@ namespace WorkflowParserException {
 	static const string Types[type_number] = {"FileOpen", "BlockSyntax", "PipeSyntax"};
 }
 
-class WorkflowParser : public Parser{
+class WorkflowParser : public Parser {
 	class ParserException {
 	private:
 		string type;

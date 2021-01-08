@@ -9,17 +9,20 @@ Data::~Data() {
 	delete execute_pipe;
 }
 	// field getters:
-const unordered_map<int, Node>* const Data::get_map() { return node_map; }
+const unordered_map<int, Node>* Data::get_map() const { return node_map; }
 
-const list<int>* const Data::get_pipe() { return execute_pipe; }
+const list<int>* Data::get_pipe() const { return execute_pipe; }
 
 // WorkflowSpec methods implementation:
-bool WorkflowSpec::check_arg_number(string name) {
-	return true;
+int WorkflowSpec::get_arg_number(string name) {	//"readfile", "writefile", "grep", "sort", "replace", "dump"
+	// 'name' should be a block name
+	assert(arg_number_map.find(name) != arg_number_map.end() && "'name' should be a block name");
+	
+	return arg_number_map.find(name)->second;
 }
 
-bool WorkflowSpec::check_name(string name) {
-	return true;
+bool WorkflowSpec::is_correct_name(string name) {
+	return block_name_set.find(name) != block_name_set.end();
 }
 
 // Node class implementation:
@@ -40,6 +43,6 @@ Node::Node(const Node& src): block_name(src.block_name), arg_number(src.arg_numb
 	args = copy;
 }
 	// field getters:
-const string Node::get_name() { return block_name; }
-const int Node::get_arg_number() { return arg_number; }
-const string* const Node::get_args() { return args; }
+string Node::get_name() const { return block_name; }
+int Node::get_arg_number() const { return arg_number; }
+const string* Node::get_args() const { return args; }

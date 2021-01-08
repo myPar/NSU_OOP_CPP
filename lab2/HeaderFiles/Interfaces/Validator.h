@@ -7,7 +7,7 @@ protected:
 	// check workflow blocks on simantic correctness (args number and s.o.)
 	virtual void check_workflow_blocks(const unordered_map<int, Node> *block_map) = 0;
 	// check workflow pipeline on simantic correctness
-	virtual void check_workflow_pipe(const list<int> *pipe) = 0;
+	virtual void check_workflow_pipe(const Data *data) = 0;
 public:
 	// delete-method
 	virtual void Delete() = 0;

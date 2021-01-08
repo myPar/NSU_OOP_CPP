@@ -1,7 +1,9 @@
 #pragma once
 #include <unordered_map>
+#include <unordered_set>
 #include <list>
 #include <string>
+#include <cassert>
 
 using namespace std;
 
@@ -10,12 +12,14 @@ using namespace std;
 namespace WorkflowSpec {
 	enum { block_number = 6 };
 	// workflow block names
-	static const string BlockNames[block_number] = { "readfile", "writefile", "grep", "sort", "replace", "dump" };
+	static const string names[block_number] = { "readfile", "writefile", "grep", "sort", "replace", "dump" };
+	static const unordered_set<string> block_name_set = { "readfile", "writefile", "grep", "sort", "replace", "dump" };
+	static const unordered_map<string, int> arg_number_map = { {"readfile", 1}, {"writefile", 1}, {"grep", 1}, {"sort", 0}, {"replace", 2}, {"dump", 1} };
 
 	// check block name correctness
-	bool check_name(string name);
-	// check correctness of args number in such block
-	bool check_arg_number(string block_name);
+	bool is_correct_name(string name);
+	// get number of arguments for such block name
+	int get_arg_number(string name);
 }
 
 // represents workflow node (block with name and args)
@@ -29,9 +33,9 @@ private:
 	string* args;
 public:
 	// vield geter's mthods
-	const string get_name();
-	const int get_arg_number();
-	const string* const get_args();
+	string get_name() const;
+	int get_arg_number() const;
+	const string* get_args() const;
 	// Constructor
 	Node(string name, int arg_n, string *ptr);
 	// copy-Constructor
@@ -52,8 +56,8 @@ private:
 	list<int>* const execute_pipe;
 public:
 	// field get'ers:
-	const unordered_map<int, Node>* const get_map();
-	const list<int>* const get_pipe();
+	const unordered_map<int, Node>* get_map() const;
+	const list<int>* get_pipe() const;
 	// Constructor & Destructor:
 	Data(unordered_map<int, Node>* map, list<int>* pipe);
 	~Data();
