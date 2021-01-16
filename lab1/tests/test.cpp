@@ -144,6 +144,43 @@ TEST(TestDataStoring, Test2) {  // Test2
     ASSERT_EQ(set.get_capacity(), 1);
 }
 
+TEST(TestTritSetIterator, Test1) {  // test iterator's work
+    TritSet set(16);
+    set[10] = True;
+    set[0] = False;
+    set[11] = True;
+    set[15] = True;
+
+    int count = 0;
+    
+    // first form
+    for (auto iter : set) {
+        if (iter == True) {
+            count++;
+        }
+    }
+    ASSERT_EQ(count, 3);
+    
+    // second form
+    for (TritSet::iterator iter = set.begin(); iter != set.end(); ++iter) {
+        if (iter.idx == 10) {
+            ASSERT_EQ(*iter, True);
+        }
+        else if (iter.idx == 0) {
+            ASSERT_EQ(*iter, False);
+        }
+        else if (iter.idx == 11) {
+            ASSERT_EQ(*iter, True);
+        }
+        else if (iter.idx == 15) {
+            ASSERT_EQ(*iter, True);
+        }
+        else {
+            ASSERT_EQ(*iter, Unknown);
+        }
+    }
+}
+
 // Test binary operations AND, OR
 TEST(TestBinaryOperations, Test1) {     // Test1
     TritSet set1(size4);
@@ -346,6 +383,41 @@ TEST(TestOtherPublicMethods, TestLength) {
     ASSERT_EQ(set.length(), 0);
     set[size5 - 1] = False;
     ASSERT_EQ(set.length(), size5);
+}
+
+TEST(TestAnnotationExample, Test1) {
+    TritSet set(1000);
+    // length of internal array
+    size_t allocLength = set.get_capacity();
+    ASSERT_TRUE(allocLength >= 1000 * 2 / 8 / sizeof(int32_t));
+    // 1000*2 - min bits count
+    // 1000*2 / 8 - min bytes count
+    // 1000*2 / 8 / sizeof(uint) - min uint[] size
+
+    //не выделяет никакой памяти
+    set[1000000000] = Unknown;
+    ASSERT_TRUE(allocLength == set.get_capacity());
+
+    // false, but no exception or memory allocation
+    if (set[2000000000] == True) {}
+    ASSERT_TRUE(allocLength == set.get_capacity());
+
+    //выделение памяти
+    set[1000000000] = True;
+    ASSERT_TRUE(allocLength < set.get_capacity());
+
+    //no memory operations
+    allocLength = set.get_capacity();
+    set[1000000000] = Unknown;
+    set[1000000] = False;
+    ASSERT_TRUE(allocLength == set.get_capacity());
+
+    TritSet set2(1000);
+    set2[100] = True;
+    allocLength = set2.get_capacity();
+
+    set2.shrink();
+    ASSERT_TRUE(allocLength > set2.get_capacity());
 }
 
 int main(int argc, char** argv) {

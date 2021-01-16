@@ -21,12 +21,7 @@ TritSet::TritSet(size_t size) {
 	// initialize set bound idx
 	bound_idx = capacity * int32_size / trit_size - 1;
 	// initialize int set
-	int_set = new int32_t[capacity];
-
-	for (size_t i = 0; i < capacity; i++) {
-		// null bits in block
-		int_set[i] = 0;
-	}
+	int_set = new int32_t[capacity]();
 }
 // copy constructor(TritSet) (creates new int32_t array and copies data from src int32_t array)
 TritSet::TritSet(const TritSet& src) : capacity(src.capacity), bound_idx(src.bound_idx), last_idx(src.last_idx) {
@@ -43,7 +38,10 @@ TritSet::Position::Position(size_t b_idx, size_t b_pos) {
 	bit_pos = b_pos;
 }
 // constructor (BlockReference)
-TritSet::SetModify::SetModify(TritSet* ref, Position pos, size_t idx) : reference(ref), position(pos), init_idx(idx) {}
+TritSet::SetModify::SetModify(TritSet &ref, Position pos, size_t idx) : reference(ref), position(pos), init_idx(idx) {}
+
+// constructor (IterTrit)
+TritSet::IterTrit::IterTrit(Trit t, size_t i, const TritSet& ref) : trit(t), idx(i), reference(ref) {}
 
 // destructor (TritSet)
 TritSet::~TritSet() {
@@ -186,29 +184,29 @@ TritSet TritSet::masking(const TritSet mask, Trit(* const operation_ptr)(Trit, T
 TritSet::SetModify TritSet::operator[] (size_t idx) {
 	Position trit_pos = get_position(idx);
 	// give itself trit set ptr as SetModify constructor parameter
-	SetModify ref(this, trit_pos, idx);
+	SetModify ref(*this, trit_pos, idx);
 
 	return ref;
 }
 // operator = for Trit initializing
 void TritSet::SetModify::operator=(Trit trit) {
 	// initializing inside trit set
-	if (init_idx <= reference->last_idx) {
-		reference->set_value(position, trit);
+	if (init_idx <= reference.last_idx) {
+		reference.set_value(position, trit);
 	}
 	// initialising with last_idx update (no memory reallocation)
-	else if (init_idx > reference->last_idx && init_idx <= reference->bound_idx) {
-		reference->set_value(position, trit);
-		reference->last_idx = init_idx;
+	else if (init_idx > reference.last_idx && init_idx <= reference.bound_idx) {
+		reference.set_value(position, trit);
+		reference.last_idx = init_idx;
 	}
 	// out of trit set bound initialising (memory reallocation)
-	else if (init_idx > reference->bound_idx) {
+	else if (init_idx > reference.bound_idx) {
 		// don't allocate memory with out of bound initializing by Unknown trit
 		if (trit != Unknown) {
 			// reallocating memory for the trit set and copy existing data
-			reference->set_memory_realloc(init_idx);
-			reference->set_value(position, trit);
-			reference->last_idx = init_idx;
+			reference.set_memory_realloc(init_idx);
+			reference.set_value(position, trit);
+			reference.last_idx = init_idx;
 		}
 	}
 	else {
@@ -219,8 +217,8 @@ void TritSet::SetModify::operator=(Trit trit) {
 bool TritSet::SetModify::operator==(Trit value) {
 	Trit trit = Unknown;
 
-	if (init_idx <= reference->last_idx) {
-		trit = reference->get_value(position);
+	if (init_idx <= reference.last_idx) {
+		trit = reference.get_value(position);
 	}
 	return trit == value;
 }
@@ -385,3 +383,38 @@ void TritSet::print_data() {
 size_t TritSet::get_capacity()  const { return capacity; }
 size_t TritSet::get_bound_idx() const { return bound_idx; }
 size_t TritSet::get_last_idx() const { return last_idx; }
+
+// iterator implementation:
+	// iterator begin() method
+TritSet::iterator TritSet::begin() {
+	Position begin_position = get_position(0);
+	Trit trit = get_value(begin_position);
+
+	return iterator(trit, 0, *this);
+}
+	// iterator end() method
+TritSet::iterator TritSet::end() {
+	Trit trit = Unknown;
+
+	return iterator(trit, last_idx + 1, *this);
+}
+	// overloaded operator++
+void TritSet::IterTrit::operator++() {
+	// update idx
+	idx++;
+	Position pos = reference.get_position(idx);
+	Trit t = reference.get_value(pos);
+	// update trit
+	trit = t;
+}
+	// overloaded operator!=
+bool TritSet::IterTrit::operator!=(IterTrit arg) {
+	if (idx != arg.idx) {
+		return true;
+	}
+	return false;
+}
+	// overloaded operator*
+Trit TritSet::IterTrit::operator*() {
+	return trit;
+}

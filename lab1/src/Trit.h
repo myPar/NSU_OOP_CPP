@@ -19,6 +19,7 @@ Trit OR(Trit trit1, Trit trit2);
 Trit NOT(Trit trit);
 
 class TritSet {
+	friend class IterTrit;
 	// class position (save viewing of int block value (S))
 	class Position {
 	public:
@@ -30,11 +31,11 @@ class TritSet {
 	class SetModify {
 	public:
 		// for set modification
-		TritSet* const reference;
+		TritSet& reference;
 		Position position;
 		size_t init_idx;
 
-		SetModify(TritSet* ref, Position pos, size_t idx);
+		SetModify(TritSet& ref, Position pos, size_t idx);
 		void operator= (Trit);
 		bool operator==(Trit);
 	};
@@ -100,4 +101,26 @@ public:
 	TritSet operator| (const TritSet);
 	// overloaded NOT
 	TritSet operator!();
+
+	// TritSet iterator implementation
+		// class provides iteriable access to trit set
+	class IterTrit {
+	public:
+		// trit value
+		Trit trit;
+		// trit idx
+		size_t idx;
+		const TritSet& reference;
+
+		IterTrit(Trit t, size_t i, const TritSet &reference);
+		void operator++();
+		bool operator!=(IterTrit);
+		Trit operator*();
+	};
+	typedef IterTrit iterator;
+	// overloaded increment operator for trit set iterator
+
+
+	iterator begin();
+	iterator end();
 };
