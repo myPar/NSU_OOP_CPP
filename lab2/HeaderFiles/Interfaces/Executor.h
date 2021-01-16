@@ -4,8 +4,8 @@
 
 class Executor {
 public:
-	// delete-method
-	virtual void Delete() = 0;
+	// virtual destructor
+	virtual ~Executor() {}
 	// workflow pipeline executing method
 	virtual void execute(const Data *data) = 0;
 	// function-factory for implement class object creating

@@ -13,8 +13,6 @@ Data* Runner::check_io_blocks(const Data* data, string i_name, string o_name) {
 	// copy data
 	*result_map = *data->get_map();
 	*result_pipe = *data->get_pipe();
-	// clear old data
-	delete data;
 
 	// get unique indices:
 	int idx1 = 0;
@@ -64,17 +62,31 @@ Data* Runner::check_io_blocks(const Data* data, string i_name, string o_name) {
 	return new Data(result_map, result_pipe);
 }
 
-void Runner::run(string workflow_file_name, string input_file_name, string output_file_name) {
-	Parser* parser = Parser::factory_method();
-	const Data *data = parser->parse_workflow(workflow_file_name);
+int Runner::run(string workflow_file_name, string input_file_name, string output_file_name) {
+	try {
+		Parser* parser = Parser::factory_method();
+		unique_ptr<Parser> parser_ptr(parser);
 
-	Validator* validator = Validator::factory_method();
-	const Data *checked_data = validator->check_workflow(data);
+		const Data* data = parser->parse_workflow(workflow_file_name);
+		unique_ptr<const Data> data_ptr(data);
 
-	Executor* executor = Executor::factory_method();
-	executor->execute(check_io_blocks(checked_data, input_file_name, output_file_name));
+		Validator* validator = Validator::factory_method();
+		unique_ptr<Validator> validator_ptr(validator);
 
-	parser->Delete();
-	validator->Delete();
-	executor->Delete();
+		// the same as data
+		const Data* checked_data = validator->check_workflow(data);
+
+		Executor* executor = Executor::factory_method();
+		unique_ptr<Executor> executor_ptr(executor);
+
+		// refactoring data add readfile or writefile block (if there are -i or -o optinons in cmd line args)
+		const Data* refactored_data = check_io_blocks(checked_data, input_file_name, output_file_name);
+		unique_ptr<const Data> refactored_data_ptr(refactored_data);
+
+		executor->execute(refactored_data);
+	}
+	catch (int exit_code) {
+		return exit_code;
+	}
+	return 0;
 }

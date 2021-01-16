@@ -1,7 +1,5 @@
 #include "WorkflowExecutor.h"
 
-void WorkflowExecutor::Delete() {delete this;}
-
 // factory-method implementation
 Executor* Executor::factory_method() {
 	return static_cast<Executor*>(new WorkflowExecutor());
@@ -26,6 +24,8 @@ void WorkflowExecutor::execute(const Data *data) {
 
 		// create block
 		Block* cur_block = Block::factory_method(node);
+		unique_ptr<Block> block_ptr(cur_block);
+
 		// try to execute block
 		try {
 			text_data_ptr = cur_block->execute(text_data_ptr);
@@ -33,20 +33,17 @@ void WorkflowExecutor::execute(const Data *data) {
 		catch (BlockException e) {
 			cerr << "WorkflowExecutor exception:" << endl;
 			e.print_exception();
-			cur_block->Delete();
-			delete data;
-			exit(1);
+			// throw exit code
+			throw -3;
 		}
-		// delete block
-		cur_block->Delete();
 	}
 	// check that text data is empty after workflow execution 
 	// (last workflow block shoult be 'writefile')
 	if (text_data.has_value()) {
 		cerr << "WorkflowExecutor exception:" << endl;
 		cerr << "last executed workflow block should be a 'writefile' block" << endl;
-		delete data;
-		exit(1);
+		// throw exit code
+		throw - 3;
 	}
 }
 

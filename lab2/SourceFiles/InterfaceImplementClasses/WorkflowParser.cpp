@@ -1,8 +1,5 @@
 #include "WorkflowParser.h"
 
-// Delete-method implementation
-void WorkflowParser::Delete() { delete this; }
-
 // factory method
 Parser* Parser::factory_method() {
 	return static_cast<Parser*>(new WorkflowParser());
@@ -192,7 +189,8 @@ const Data *WorkflowParser::parse_workflow(string input_file_name) {
 		delete workflow_block_map;
 		delete pipe;
 		exception.print_exception();
-		exit(1);
+		// throw exit code
+		throw -1;
 	}
 	// return workflow Data
 	return new Data(workflow_block_map, pipe);

@@ -9,8 +9,8 @@ protected:
 	// check workflow pipeline on simantic correctness
 	virtual void check_workflow_pipe(const Data *data) = 0;
 public:
-	// delete-method
-	virtual void Delete() = 0;
+	// virtual destructor
+	virtual ~Validator() {}
 	// main Validator function 
 	virtual const Data *check_workflow(const Data *data) = 0;
 	// function-factory for implement class object creating

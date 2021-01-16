@@ -1,8 +1,6 @@
 #include "Sort.h"
 
 // Sort class implementation:
-	// Delete method
-void Sort::Delete() { delete this; }
 // constructor
 Sort::Sort(Node n) : node(n) {}
 // main block method

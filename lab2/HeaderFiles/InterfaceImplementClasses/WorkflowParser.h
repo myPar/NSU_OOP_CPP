@@ -30,8 +30,6 @@ private:
 public:
 	// main method
 	const Data *Parser::parse_workflow(string input_file_name) override;
-	// Interface virtual destructor
-	void Delete() override;
 	
 	// make factory method a friend
 	friend Parser* Parser::factory_method();

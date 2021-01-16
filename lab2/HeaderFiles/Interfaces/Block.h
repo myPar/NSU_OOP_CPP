@@ -24,8 +24,8 @@ public:
 class Block {
 
 public:
-	// Delete-method
-	virtual void Delete() = 0;
+	// virtual destructor
+	virtual ~Block() {}
 	// main workflow block method
 	virtual optional<vector<string>> *execute(optional<vector<string>> *input) = 0;
 	// factory method for creating workflow blocks

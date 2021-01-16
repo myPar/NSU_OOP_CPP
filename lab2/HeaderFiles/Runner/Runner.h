@@ -7,6 +7,6 @@ class Runner {
 private:
 	Data* check_io_blocks(const Data *data, string i_name, string o_name);
 public:
-	void run(string workflow_file_name, string input_file_name, string output_file_name);
+	int run(string workflow_file_name, string input_file_name, string output_file_name);
 };
 

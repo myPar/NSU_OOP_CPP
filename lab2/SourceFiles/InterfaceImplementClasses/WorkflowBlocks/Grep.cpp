@@ -1,8 +1,6 @@
 #include "Grep.h"
 
 // Grep class implementation:
-	// Delete method
-void Grep::Delete() { delete this; }
 
 // constructor
 Grep::Grep(Node n) : node(n) {}

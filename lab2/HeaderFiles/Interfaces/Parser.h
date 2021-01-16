@@ -13,8 +13,8 @@ protected:
 	// parse workflow pipeline and check it on syntax correctness and on difference
 	virtual list<int>* const parse_pipe(ifstream* input) = 0;
 public:
-	// delete-method
-	virtual void Delete() = 0;
+	// virtual destructor
+	virtual ~Parser() {}
 	// main parse function
 	virtual const Data *parse_workflow(string input_file_name) = 0;
 	// function-factory for implement class object creating

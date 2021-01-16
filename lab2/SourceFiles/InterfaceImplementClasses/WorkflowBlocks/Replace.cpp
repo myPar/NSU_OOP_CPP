@@ -1,8 +1,6 @@
 #include "Replace.h"
 
 // ReadFile class implementation:
-	// Delete method
-void Replace::Delete() { delete this; }
 // constructor
 Replace::Replace(Node n) : node(n) {}
 // main block method

@@ -1,8 +1,6 @@
 #include "WriteFile.h"
 
 // WriteFile class implementation:
-	// Delete method
-void WriteFile::Delete() { delete this; }
 // constructor
 WriteFile::WriteFile(Node n) : node(n) {}
 // main block method

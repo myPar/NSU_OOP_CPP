@@ -51,9 +51,10 @@ int main(int argc, char** argv)
     if (!is_correct) {
         cerr << "WorkflowRunner exception:" << endl;
         cerr << "Incorrect args" << endl;
-        exit(1);
+        return 1;
     }
-
     Runner runner;
-    runner.run(workflow_file_name, input_file_name, output_file_name);
+    int exit_code = runner.run(workflow_file_name, input_file_name, output_file_name);
+
+    return exit_code;
 }

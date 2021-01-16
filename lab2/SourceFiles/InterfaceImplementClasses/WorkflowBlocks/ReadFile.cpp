@@ -1,8 +1,6 @@
 #include "ReadFile.h"
 
 // ReadFile class implementation:
-	// Delete method
-void ReadFile::Delete() { delete this; }
 	// constructor
 ReadFile::ReadFile(Node n) : node(n){}
 	// main block method

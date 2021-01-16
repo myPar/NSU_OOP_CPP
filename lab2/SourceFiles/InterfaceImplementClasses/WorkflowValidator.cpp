@@ -1,6 +1,4 @@
 #include "WorkflowValidator.h"
-// Delete-method implementation
-void WorkflowValidator::Delete() { delete this; }
 
 // factory method implementatation
 Validator* Validator::factory_method() {
@@ -39,8 +37,8 @@ const Data *WorkflowValidator::check_workflow(const Data *data) {
 	}
 	catch (ValidatorException e) {
 		e.print_exception();
-		delete data;
-		exit(1);
+		// throw exit code
+		throw -2;
 	}
 	return data;
 }

@@ -9,6 +9,5 @@ private:
 	Sort(Node node);
 public:
 	optional<vector<string>> *execute(optional<vector<string>> *input) override;
-	void Delete() override;
 	friend Block* Block::factory_method(Node node);
 };
