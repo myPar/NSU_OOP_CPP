@@ -13,61 +13,46 @@ void GameExecutor::execute(GameSettings settings) {
 
 	for (int round = 0; round < round_count; round++) {
 		Player* player1 = Player::factory_method(settings.get_player1_type(), FIRST);
+		unique_ptr<Player> player1_ptr(player1);
+
 		Player* player2 = Player::factory_method(settings.get_player2_type(), SECOND);
+		unique_ptr<Player> player2_ptr(player2);
+
 		viewer->display(*player1);
 		viewer->display(*player2);
-		GameState state;
 
 		GameStatus status = HIT;
 		int moves_count = 0;
+		// at the game beginning current player is first player
+		Player* current_player = player1;
+			
+		status = HIT;
 
 		while (true) {
-			status = HIT;
-			// while hit do move
-			while (status == HIT || status == KILL) {
-				// do move
-				PlayerMove move1 = player1->do_move();
-				// increment number of moves
-				moves_count++;
+			// do move
+			PlayerMove move = current_player->do_move();
+			// increment number of moves
+			moves_count++;
 
-				// update players and Statistics
-				status = state.update(move1, player1, player2, &statistic, round, moves_count);
-				
-				// already bitted cell need to move again
-				if (status == BITTED) {
-					moves_count--;
-					status = HIT;
-				}
-				else {
-					viewer->display(*player1);
-				}
+			// update players and Statistics
+			status = GameState::update(move, player1, player2, &statistic, round, moves_count);
+
+			// already bitted cell need to move again
+			if (status == BITTED) {
+				moves_count--;
+				status = HIT;
 			}
-			if (status == P1_WON) {
-				break;
-			}
-			status = HIT;
+			else {
+				viewer->display(*current_player);
 
-			// while hit do move
-			while (status == HIT || status == KILL) {
-				// do move
-				PlayerMove move2 = player2->do_move();
-				// increment number of moves
-				moves_count++;
-
-				// update players and Statistics
-				status = state.update(move2, player1, player2, &statistic, round, moves_count);
-
-				// already bitted cell need to move again
-				if (status == BITTED) {
-					moves_count--;
-					status = HIT;
+				if (status == FALL){
+					// change current player
+					current_player = current_player->get_id() == FIRST ? player2 : player1;
 				}
-				else {
-					viewer->display(*player2);
+				else if (status == P1_WON || status == P2_WON) {
+					break;
 				}
-			}
-			if (status == P2_WON) {
-				break;
+				status = HIT;
 			}
 		}
 		// check winner consistance

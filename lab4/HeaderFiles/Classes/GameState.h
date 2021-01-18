@@ -5,5 +5,5 @@
 
 class GameState {
 public:
-	GameStatus update(PlayerMove move, Player *player1, Player *player2, Statistics *statistic, int round, int move_count);
+	static GameStatus update(PlayerMove move, Player *player1, Player *player2, Statistics *statistic, int round, int move_count);
 };
